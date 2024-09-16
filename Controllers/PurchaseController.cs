@@ -16,7 +16,7 @@ namespace Parser._ASP.Net.Controllers
 
             var parsedPurchaseList = new List<List<Card>>();
             var parser = new ParserWorker<List<Card>>(new Purchase_Parser());
-            IParserSettings settings = new PurchaseSettings("бумага", 1, 5);
+            IParserSettings settings = new PurchaseSettings("труба", 1, 1);
             parser.ParserSettings = settings;
 
             parser.OnNewData += Parser_OnNewData;
@@ -31,11 +31,12 @@ namespace Parser._ASP.Net.Controllers
                 HttpContext.Response.WriteAsync(ex.Message);
             }
 
-            void Parser_OnNewData(List<Card> arg2)
+            void Parser_OnNewData(List<Card> cards)
             {
                 //добавление данных с карточек на одной странице
                 //add data from cards on one page
-                parsedPurchaseList.Add(arg2);
+                if(cards.Count > 0)
+                    parsedPurchaseList.Add(cards);
             }
 
             void Parser_OnComplete()
@@ -50,7 +51,7 @@ namespace Parser._ASP.Net.Controllers
 
         private void PrintParsedPurchases(List<List<Card>> parsedPurchaseList)
         {
-            if (parsedPurchaseList != null)
+            if (parsedPurchaseList.Count > 0)
             {
                 foreach (List<Card> list in parsedPurchaseList)
                 {
@@ -64,6 +65,11 @@ namespace Parser._ASP.Net.Controllers
                         HttpContext.Response.WriteAsync("\n\n");
                     }
                 }
+            }
+
+            else
+            {
+                HttpContext.Response.WriteAsync("No purchase information is available at the specified URL\n");
             }
         }
     }
