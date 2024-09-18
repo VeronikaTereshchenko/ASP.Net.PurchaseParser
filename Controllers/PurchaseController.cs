@@ -1,21 +1,22 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Parser._ASP.Net.Models;
 using Parser._ASP.Net.Controllers.Parsers;
-using Parser._ASP.Net.Controllers.Parsers.Purchases;
+using Parser._ASP.Net.Parsers.Purchases;
+using Parser._ASP.Net.Parsers.Interfaces;
 
 namespace Parser._ASP.Net.Controllers
 {
     public class PurchaseController : Controller
     {
+        [Route("")]
         [HttpGet]
-        public async Task ParsePurchases(string searchString, int pageNumber)
+        public  async Task ParsePurchases() 
         {
-            var response = Response;
-            response.Headers.ContentLanguage = "ru-Ru";
-            response.Headers.ContentType = "text/plain; charset=utf-8";
+            Response.Headers.ContentLanguage = "ru-Ru";
+            Response.Headers.ContentType = "text/plain; charset=utf-8";
 
             var parsedPurchaseList = new List<List<Card>>();
             var parser = new ParserWorker<List<Card>>(new Purchase_Parser());
+            
             IParserSettings settings = new PurchaseSettings("труба", 1, 1);
             parser.ParserSettings = settings;
 
@@ -24,11 +25,12 @@ namespace Parser._ASP.Net.Controllers
 
             try
             {
+                var r = Request;
                 await parser.Start();
             }
             catch (HttpRequestException ex)
             {
-                HttpContext.Response.WriteAsync(ex.Message);
+                Response.WriteAsync(ex.Message);
             }
 
             void Parser_OnNewData(List<Card> cards)
@@ -43,33 +45,33 @@ namespace Parser._ASP.Net.Controllers
             {
                 //поиск по страницам завершён
                 // page search complete
-                HttpContext.Response.WriteAsync("All works done!!!\n");
+                Response.WriteAsync("All works done!!!\n\n");
             }
 
-            PrintParsedPurchases(parsedPurchaseList);
+            PrintParsedPurchases(parsedPurchaseList, Response);
         }
 
-        private void PrintParsedPurchases(List<List<Card>> parsedPurchaseList)
+        private static void PrintParsedPurchases(List<List<Card>> parsedpurchaselist, HttpResponse response)
         {
-            if (parsedPurchaseList.Count > 0)
+            if (parsedpurchaselist.Count > 0)
             {
-                foreach (List<Card> list in parsedPurchaseList)
+                foreach (List<Card> list in parsedpurchaselist)
                 {
                     foreach (Card card in list)
                     {
-                        HttpContext.Response.WriteAsync("Card\n");
+                        response.WriteAsync("card\n");
 
                         foreach (var prop in typeof(Card).GetProperties())
-                            HttpContext.Response.WriteAsync($"{prop.Name}: {prop.GetValue(card)}\n");
+                            response.WriteAsync($"{prop.Name}: {prop.GetValue(card)}\n");
 
-                        HttpContext.Response.WriteAsync("\n\n");
+                        response.WriteAsync("\n\n");
                     }
                 }
             }
 
             else
             {
-                HttpContext.Response.WriteAsync("No purchase information is available at the specified URL\n");
+                response.WriteAsync("no purchase information is available at the specified url\n");
             }
         }
     }

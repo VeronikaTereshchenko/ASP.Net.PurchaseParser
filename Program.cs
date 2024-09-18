@@ -1,3 +1,5 @@
+using Parser._ASP.Net.Controllers;
+
 internal class Program
 {
     private static void Main(string[] args)
@@ -6,10 +8,7 @@ internal class Program
         builder.Services.AddControllers();
         var app = builder.Build();
 
-        app.MapControllerRoute(
-            name: "default",
-            pattern: "{controller=Purchase}/{action=ParsePurchases}"
-            );
+        app.MapControllers();
 
         app.Run();
     }
