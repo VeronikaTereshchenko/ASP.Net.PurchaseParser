@@ -2,77 +2,34 @@
 using Parser._ASP.Net.Controllers.Parsers;
 using Parser._ASP.Net.Parsers.Purchases;
 using Parser._ASP.Net.Parsers.Interfaces;
+using Parser._ASP.Net.ConfigurationManager;
+using Parser._ASP.Net.Models;
+using Parser._ASP.Net.Models.Purchases;
 
 namespace Parser._ASP.Net.Controllers
 {
-    public class PurchaseController : Controller
+    [ApiController]
+    public class PurchaseController : ControllerBase
     {
-        [Route("")]
-        [HttpGet]
-        public  async Task ParsePurchases() 
+        [Route("api/zakupki/search/get")]
+        [HttpPost]
+        public async Task<IActionResult> ParsePurchases() 
         {
-            Response.Headers.ContentLanguage = "ru-Ru";
-            Response.Headers.ContentType = "text/plain; charset=utf-8";
+            var parser = new ParserWorker(new PurchaseParser());
 
-            var parsedPurchaseList = new List<List<Card>>();
-            var parser = new ParserWorker<List<Card>>(new Purchase_Parser());
-            
-            IParserSettings settings = new PurchaseSettings("труба", 1, 1);
-            parser.ParserSettings = settings;
+            List<Card> parsedPurchasesList = await parser.GetProductsAsync();
 
-            parser.OnNewData += Parser_OnNewData;
-            parser.OnCompleted += Parser_OnComplete;
+            var settings = Configurations.GetPurchaseSettings;
 
-            try
+            var foundPurchases = new FoundPurchases()
             {
-                var r = Request;
-                await parser.Start();
-            }
-            catch (HttpRequestException ex)
-            {
-                Response.WriteAsync(ex.Message);
-            }
+                PurchaseName = settings.PurchaseName,
+                PagesPeriod = $"search through pages {settings.FirstPageNum} to {settings.LastPageNum}",
+                PurchasesListCount = parsedPurchasesList.Count,
+                PurchasesList = parsedPurchasesList
+            };
 
-            void Parser_OnNewData(List<Card> cards)
-            {
-                //добавление данных с карточек на одной странице
-                //add data from cards on one page
-                if(cards.Count > 0)
-                    parsedPurchaseList.Add(cards);
-            }
-
-            void Parser_OnComplete()
-            {
-                //поиск по страницам завершён
-                // page search complete
-                Response.WriteAsync("All works done!!!\n\n");
-            }
-
-            PrintParsedPurchases(parsedPurchaseList, Response);
-        }
-
-        private static void PrintParsedPurchases(List<List<Card>> parsedpurchaselist, HttpResponse response)
-        {
-            if (parsedpurchaselist.Count > 0)
-            {
-                foreach (List<Card> list in parsedpurchaselist)
-                {
-                    foreach (Card card in list)
-                    {
-                        response.WriteAsync("card\n");
-
-                        foreach (var prop in typeof(Card).GetProperties())
-                            response.WriteAsync($"{prop.Name}: {prop.GetValue(card)}\n");
-
-                        response.WriteAsync("\n\n");
-                    }
-                }
-            }
-
-            else
-            {
-                response.WriteAsync("no purchase information is available at the specified url\n");
-            }
+            return Ok(foundPurchases);
         }
     }
 }
