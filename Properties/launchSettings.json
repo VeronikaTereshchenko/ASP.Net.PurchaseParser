@@ -1,5 +1,5 @@
 ﻿{
-  "iisSettings": {
+  "iis_PurchaseSettings": {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {

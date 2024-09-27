@@ -1,4 +1,6 @@
-using Parser._ASP.Net.ConfigurationManager;
+using Parser._ASP.Net.Controllers.Parsers;
+using Parser._ASP.Net.Models.Purchases;
+using Parser._ASP.Net.Parsers.Purchases;
 
 internal class Program
 {
@@ -7,12 +9,12 @@ internal class Program
         var builder = WebApplication.CreateBuilder(args);
         builder.Services.AddControllers();
 
-        var config = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json")
-            .AddEnvironmentVariables()
-            .Build();
-
-        Configurations.SetSettings(config);
+        builder.Services.Configure<PurchaseSettings>(
+            builder.Configuration.GetSection(PurchaseSettings.PurchaseSection));
+        builder.Services.AddScoped<PurchaseParser>();
+        builder.Services.AddScoped<ParserWorker>();
+        builder.Services.AddSingleton<HtmlLoader>();
+        builder.Services.AddHttpClient();
 
         var app = builder.Build();
 

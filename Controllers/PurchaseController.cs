@@ -1,30 +1,32 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Parser._ASP.Net.Controllers.Parsers;
-using Parser._ASP.Net.Parsers.Purchases;
-using Parser._ASP.Net.Parsers.Interfaces;
-using Parser._ASP.Net.ConfigurationManager;
-using Parser._ASP.Net.Models;
 using Parser._ASP.Net.Models.Purchases;
+using Microsoft.Extensions.Options;
 
 namespace Parser._ASP.Net.Controllers
 {
     [ApiController]
     public class PurchaseController : ControllerBase
     {
-        [Route("api/zakupki/search/get")]
+        private readonly PurchaseSettings _purchaseSettings;
+        private ParserWorker _parser;
+
+        public PurchaseController(IOptions<PurchaseSettings> purchaseOption, ParserWorker parserWorker) 
+        {
+            _purchaseSettings = purchaseOption.Value;
+            _parser = parserWorker;
+        }
+
+        [Route("api/zakupki/get")]
         [HttpPost]
         public async Task<IActionResult> ParsePurchases() 
         {
-            var parser = new ParserWorker(new PurchaseParser());
-
-            List<Card> parsedPurchasesList = await parser.GetProductsAsync();
-
-            var settings = Configurations.GetPurchaseSettings;
+            List<Card> parsedPurchasesList = await _parser.GetProductsAsync();
 
             var foundPurchases = new FoundPurchases()
             {
-                PurchaseName = settings.PurchaseName,
-                PagesPeriod = $"search through pages {settings.FirstPageNum} to {settings.LastPageNum}",
+                PurchaseName = _purchaseSettings.PurchaseName,
+                PagesPeriod = $"search through pages {_purchaseSettings.FirstPageNum} to {_purchaseSettings.LastPageNum}",
                 PurchasesListCount = parsedPurchasesList.Count,
                 PurchasesList = parsedPurchasesList
             };

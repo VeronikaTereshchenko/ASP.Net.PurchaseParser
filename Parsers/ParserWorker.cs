@@ -1,19 +1,22 @@
-﻿using AngleSharp.Html.Dom;
-using AngleSharp.Html.Parser;
-using Microsoft.AspNetCore.Mvc;
-using Parser._ASP.Net.ConfigurationManager;
+﻿using AngleSharp.Html.Parser;
+using Microsoft.Extensions.Options;
 using Parser._ASP.Net.Models.Purchases;
-using Parser._ASP.Net.Parsers;
-using Parser._ASP.Net.Parsers.Interfaces;
+using Parser._ASP.Net.Parsers.Purchases;
 
 namespace Parser._ASP.Net.Controllers.Parsers
 {
     public class ParserWorker
     {
-        public HtmlSelectorParser _parser;
-        private IParserSettings _purchaseSettings = Configurations.GetPurchaseSettings;
+        public PurchaseParser _parser;
+        private HtmlLoader _htmlLoader;
+        private PurchaseSettings _purchaseSettings;
 
-        public ParserWorker(HtmlSelectorParser p) => _parser = p;
+        public ParserWorker(IOptions<PurchaseSettings> purchaseOption, PurchaseParser parser, HtmlLoader htmlLoader)
+        {
+            _purchaseSettings = purchaseOption.Value;
+            _htmlLoader = htmlLoader;
+            _parser = parser;
+        }
 
         public async Task<List<Card>> GetProductsAsync()
         {
@@ -21,12 +24,22 @@ namespace Parser._ASP.Net.Controllers.Parsers
 
             for (int pageNum = _purchaseSettings.FirstPageNum; pageNum <= _purchaseSettings.LastPageNum; pageNum++)
             {
-                var source = await HtmlLoader.GetPageAsync(pageNum);
+                var source = await _htmlLoader.GetPageAsync(pageNum);
+
+                if (string.IsNullOrEmpty(source))
+                    continue;
+
                 var htmlParser = new HtmlParser();
                 var document = await htmlParser.ParseDocumentAsync(source);
+
+                if (document == null)
+                    continue;
+
                 //достаём инф. из каждой карточки на странице по тегам и классам
                 //retrieve information from each card on the page by tags and classes
-                parsedInfo.AddRange(_parser.Parse(document));
+                var result = _parser.Parse(document);
+
+                parsedInfo.AddRange(result);
             }
 
             return parsedInfo;
