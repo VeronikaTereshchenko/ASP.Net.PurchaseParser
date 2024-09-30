@@ -133,7 +133,7 @@ $tf/
 # ReSharper is a .NET coding add-in
 _ReSharper*/
 *.[Rr]e[Ss]harper
-*.DotSettings.user
+*.Dot_PurchaseSettings.user
 
 # TeamCity is a build add-in
 _TeamCity*
@@ -143,7 +143,7 @@ _TeamCity*
 
 # AxoCover is a Code Coverage Tool
 .axoCover/*
-!.axoCover/settings.json
+!.axoCover/_PurchaseSettings.json
 
 # Coverlet is a free, cross platform Code Coverage Tool
 coverage*.json
@@ -185,13 +185,13 @@ publish/
 # Publish Web Output
 *.[Pp]ublish.xml
 *.azurePubxml
-# Note: Comment the next line if you want to checkin your web deploy settings,
+# Note: Comment the next line if you want to checkin your web deploy _PurchaseSettings,
 # but database connection strings (with potential passwords) will be unencrypted
 *.pubxml
 *.publishproj
 
-# Microsoft Azure Web App publish settings. Comment the next line if you want to
-# checkin your Azure Web App publish settings, but sensitive information contained
+# Microsoft Azure Web App publish _PurchaseSettings. Comment the next line if you want to
+# checkin your Azure Web App publish _PurchaseSettings, but sensitive information contained
 # in these scripts will be unencrypted
 PublishScripts/
 
@@ -240,7 +240,7 @@ ClientBin/
 *.dbproj.schemaview
 *.jfm
 *.pfx
-*.publishsettings
+*.publish_PurchaseSettings
 orleans.codegen.cs
 
 # Including strong name files can present a security risk
@@ -272,7 +272,7 @@ ServiceFabricBackup/
 # Business Intelligence projects
 *.rdl.data
 *.bim.layout
-*.bim_*.settings
+*.bim_*._PurchaseSettings
 *.rptproj.rsuser
 *- [Bb]ackup.rdl
 *- [Bb]ackup ([0-9]).rdl
@@ -323,7 +323,7 @@ paket-files/
 # FAKE - F# Make
 .fake/
 
-# CodeRush personal settings
+# CodeRush personal _PurchaseSettings
 .cr/personal
 
 # Python Tools for Visual Studio (PTVS)
@@ -381,7 +381,7 @@ FodyWeavers.xsd
 
 # VS Code files for those working on multiple tools
 .vscode/*
-!.vscode/settings.json
+!.vscode/_PurchaseSettings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
